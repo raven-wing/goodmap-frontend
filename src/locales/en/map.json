@@ -6,5 +6,7 @@
     "reportNotHere": "this point is not here",
     "reportOverload": "it's overloaded",
     "reportBroken": "it's broken",
-    "reportOther": "other"
+    "reportOther": "other",
+    "navigateMe": "Navigate me",
+    "submit": "Submit"
 }

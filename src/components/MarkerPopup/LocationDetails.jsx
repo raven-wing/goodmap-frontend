@@ -5,7 +5,7 @@ import { isMobile } from 'react-device-detect';
 import { buttonStyleSmall } from '../../styles/buttonStyle';
 import { getContentAsString, mapCustomTypeToReactComponent } from './mapCustomTypeToReactComponent';
 import { ReportProblemForm } from './ReportProblemForm';
-
+import { useTranslation } from 'react-i18next';
 import React, { useState } from 'react';
 
 const isCustomValue = value => typeof value === 'object' && !(value instanceof Array);
@@ -30,7 +30,9 @@ LocationDetailsValue.propTypes = {
     ]).isRequired,
 };
 
-const NavigateMeButton = ({ place }) => (
+const NavigateMeButton = ({ place }) => {
+    const { t } = useTranslation();
+    return (
     <a
         href={`geo:${place.position[0]},${place.position[1]}?q=${place.position[0]},${place.position[1]}`}
         style={{ textDecoration: 'none', alignItems: 'center', height: '20%' }}
@@ -45,9 +47,10 @@ const NavigateMeButton = ({ place }) => (
             }}
         >
             <ExploreIcon style={{ color: 'white', marginRight: '10px' }} />
-            <span>Navigate me</span>
+            <span>{t('navigateMe')</span>
         </p>
     </a>
+    }
 );
 
 const LocationDetails = ({ place }) => {
