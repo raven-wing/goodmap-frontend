@@ -5,7 +5,6 @@ import { isMobile } from 'react-device-detect';
 import { buttonStyleSmall } from '../../styles/buttonStyle';
 import { getContentAsString, mapCustomTypeToReactComponent } from './mapCustomTypeToReactComponent';
 import { ReportProblemForm } from './ReportProblemForm';
-import { useTranslation } from 'react-i18next';
 import React, { useState } from 'react';
 
 const isCustomValue = value => typeof value === 'object' && !(value instanceof Array);
@@ -47,11 +46,10 @@ const NavigateMeButton = ({ place }) => {
             }}
         >
             <ExploreIcon style={{ color: 'white', marginRight: '10px' }} />
-            <span>{t('navigateMe')</span>
+            <span>{t('navigateMe')}</span>
         </p>
-    </a>
-    }
-);
+    </a>);
+};
 
 const LocationDetails = ({ place }) => {
     const categoriesWithSubcategories = place.data.filter(([category]) => !(category === 'CTA'));
