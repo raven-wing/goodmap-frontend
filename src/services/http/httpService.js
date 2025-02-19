@@ -1,4 +1,4 @@
-import { CATEGORIES, CATEGORY, DATA, LANGUAGES, LOCATION, LOCATIONS, SEARCH_ADDRESS, LOCATIONS_CLUSTERED } from './endpoints';
+import { CATEGORIES, CATEGORY, LANGUAGES, LOCATION, LOCATIONS, SEARCH_ADDRESS, LOCATIONS_CLUSTERED } from './endpoints';
 import { useMapStore } from '../../components/Map/store/map.store';
 
 function filtersToQuery(filters) {
@@ -37,14 +37,11 @@ function filtersToQuery(filters) {
     },
 
     getLocations: async filters => {
-      let ENDPOINT = DATA;  // TODO remove DATA endpont after removing it from main API
+      let ENDPOINT = LOCATIONS;
       const filtersUrlParams = filtersToQuery(filters);
       if (window.USE_SERVER_SIDE_CLUSTERING) {
           ENDPOINT = LOCATIONS_CLUSTERED;
-      } else if (window.USE_LAZY_LOADING) {
-          ENDPOINT = LOCATIONS;
       }
-
 
       const response = await fetch(`${ENDPOINT}?${filtersUrlParams}`, {
           method: 'GET',
@@ -67,7 +64,7 @@ function filtersToQuery(filters) {
 
     getLocationsWithLatLon: async (lat, lon, filters) => {
         const query = filtersToQuery(filters);
-        const response = await fetch(`${DATA}?${query}&lat=${lat}&lon=${lon}&limit=10`, {
+        const response = await fetch(`${LOCATIONS}?${query}&lat=${lat}&lon=${lon}&limit=10`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
