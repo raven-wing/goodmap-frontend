@@ -25,4 +25,25 @@ describe('ClusterMarker', () => {
     it('should render cluster count', () => {
         expect(screen.getByText(correctClusterData.cluster_count)).toBeInTheDocument();
     });
+
+    it('should call map.flyTo when cluster is clicked', () => {
+        const mockFlyTo = jest.fn();
+        jest.spyOn(require('react-leaflet'), 'useMap').mockReturnValue({
+            flyTo: mockFlyTo,
+            getZoom: jest.fn().mockReturnValue(10),
+        });
+
+        const { getByText } = render(
+            <MapContainer center={[51.1095, 17.0525]} zoom={10}>
+                <ClusterMarker cluster={correctClusterData} />
+            </MapContainer>,
+        );
+
+        fireEvent.click(getByText(correctClusterData.cluster_count));
+
+        expect(mockFlyTo).toHaveBeenCalledWith(
+            correctClusterData.position,
+            15, // 10 + 5
+        );
+    });
 });

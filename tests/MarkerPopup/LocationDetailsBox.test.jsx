@@ -1,7 +1,8 @@
 import React from 'react';
 import '@testing-library/jest-dom';
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import { LocationDetailsBox } from '../../src/components/MarkerPopup/LocationDetails';
+import { getByTestId } from '@testing-library/dom';
 
 const correctMarkerData = {
     title: 'Most Grunwaldzki',
@@ -44,6 +45,34 @@ describe('should render marker popup correctly', () => {
 
     it('should render marker popup subtitle', () => {
         expect(screen.getByText(/big bridge/i)).toBeInTheDocument();
+    });
+
+    it('should render NavigateMe button on mobile', () => {
+        // Mock isMobile to return true
+        jest.mock('react-device-detect', () => ({
+            isMobile: true,
+        }));
+
+        const { getByText } = render(<LocationDetailsBox place={correctMarkerData} />);
+        expect(getByText('navigateMeButton')).toBeInTheDocument();
+
+        // Reset mock
+        jest.resetModules();
+    });
+
+    it('should show ReportProblemForm when report issue button is clicked', () => {
+        const { getByText, queryByLabelText } = render(
+            <LocationDetailsBox place={correctMarkerData} />,
+        );
+
+        // Initially form should not be visible
+        expect(queryByLabelText(/Problem:/i)).not.toBeInTheDocument();
+
+        // Click report button
+        fireEvent.click(getByTestId('report-issue-button'));
+
+        // Form should now be visible
+        expect(queryByLabelText(/Problem:/i)).toBeInTheDocument();
     });
 
     describe('should render data', () => {

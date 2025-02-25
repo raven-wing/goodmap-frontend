@@ -152,6 +152,7 @@ export const LocationDetailsBox = ({ place }) => {
                     marginTop: '5px',
                     marginBottom: '5px',
                 }}
+              data-testid="report-issue-button"
             >
                 {t('ReportIssueButton')}
             </p>
