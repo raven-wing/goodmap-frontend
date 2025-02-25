@@ -22,14 +22,6 @@
     "files": [
         "dist"
     ],
-    "jest": {
-        "transform": {
-            "^.+\\.(js|jsx)$": "babel-jest"
-        },
-        "setupFilesAfterEnv": [
-            "<rootDir>/jest.setup.js"
-        ]
-    },
     "license": "MIT",
     "devDependencies": {
         "@babel/core": "^7.18.5",
