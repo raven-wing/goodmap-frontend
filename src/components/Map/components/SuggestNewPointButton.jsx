@@ -45,25 +45,17 @@ export const SuggestNewPointButton = () => {
     const [photoURL, setPhotoURL] = useState(null);
 
     // Read location schema from global object
-    const locationSchema = globalThis.LOCATION_SCHEMA || { obligatory_fields: [], categories: {} };
+    const locationSchema = globalThis.LOCATION_SCHEMA || { fields: {}, categories: {} };
 
-    // Initialize dynamic form fields based on schema
+    // Initialize dynamic form fields based on enhanced schema
     const initializeFormFields = () => {
         const fields = {};
-        locationSchema.obligatory_fields.forEach(([fieldName, fieldType]) => {
-            // Skip uuid - it's generated on backend
-            if (fieldName === 'uuid') {
-                return;
-            }
-            if (fieldType === 'list') {
-                fields[fieldName] = [];
-            } else {
-                fields[fieldName] = '';
-            }
+        Object.entries(locationSchema.fields || {}).forEach(([fieldName, fieldSpec]) => {
+            // Initialize based on field type from schema
+            fields[fieldName] = fieldSpec.type === 'array' ? [] : '';
         });
         return fields;
     };
-
     const [formFields, setFormFields] = useState(initializeFormFields);
 
     useEffect(() => {
@@ -166,12 +158,12 @@ export const SuggestNewPointButton = () => {
 
         // Validate required fields are filled
         const emptyFields = [];
-        locationSchema.obligatory_fields.forEach(([fieldName, fieldType]) => {
-            if (fieldName === 'uuid') return; // Skip uuid - generated on backend
-
+        Object.entries(locationSchema.fields || {}).forEach(([fieldName, fieldSpec]) => {
             const value = formFields[fieldName];
             const isEmpty =
-                fieldType === 'list' ? !value || value.length === 0 : !value || value.trim() === '';
+                fieldSpec.type === 'array'
+                    ? !value || value.length === 0
+                    : !value || value.trim() === '';
 
             if (isEmpty) {
                 emptyFields.push(fieldName);
@@ -226,13 +218,14 @@ export const SuggestNewPointButton = () => {
         }
     };
 
-    // Render form field based on field type and whether it's a category
-    const renderFormField = (fieldName, fieldType) => {
-        const isCategory = fieldName in locationSchema.categories;
-        const categoryOptions = isCategory ? locationSchema.categories[fieldName] : [];
+    // Render form field based on field specification from schema
+    const renderFormField = (fieldName, fieldSpec) => {
+        // Extract enum values from schema (for categories)
+        const enumValues = fieldSpec.enum || fieldSpec.enum_items;
+        const description = fieldSpec.description;
 
-        if (fieldType === 'list' && isCategory) {
-            // Multi-select for list categories
+        if (fieldSpec.type === 'array' && enumValues) {
+            // Multi-select for list fields with enum constraints
             return (
                 <FormControl fullWidth margin="dense" key={fieldName}>
                     <InputLabel id={`${fieldName}-label`}>{fieldName}</InputLabel>
@@ -245,7 +238,7 @@ export const SuggestNewPointButton = () => {
                         renderValue={selected => selected.join(', ')}
                         data-testid={`${fieldName}-select`}
                     >
-                        {categoryOptions.map(option => (
+                        {enumValues.map(option => (
                             <MenuItem key={option} value={option}>
                                 <Checkbox checked={formFields[fieldName].includes(option)} />
                                 <ListItemText primary={option} />
@@ -254,8 +247,8 @@ export const SuggestNewPointButton = () => {
                     </Select>
                 </FormControl>
             );
-        } else if (isCategory) {
-            // Single select for category fields
+        } else if (enumValues) {
+            // Single select for fields with enum constraints
             return (
                 <FormControl fullWidth margin="dense" key={fieldName}>
                     <InputLabel id={`${fieldName}-label`}>{fieldName}</InputLabel>
@@ -265,7 +258,7 @@ export const SuggestNewPointButton = () => {
                         onChange={handleFieldChange(fieldName)}
                         data-testid={`${fieldName}-select`}
                     >
-                        {categoryOptions.map(option => (
+                        {enumValues.map(option => (
                             <MenuItem key={option} value={option}>
                                 {option}
                             </MenuItem>
@@ -274,7 +267,7 @@ export const SuggestNewPointButton = () => {
                 </FormControl>
             );
         } else {
-            // Text field for non-category fields
+            // Text field for non-enum fields
             return (
                 <TextField
                     key={fieldName}
@@ -283,6 +276,7 @@ export const SuggestNewPointButton = () => {
                     onChange={handleFieldChange(fieldName)}
                     fullWidth
                     margin="dense"
+                    helperText={description}
                     data-testid={`${fieldName}-input`}
                 />
             );
@@ -334,9 +328,9 @@ export const SuggestNewPointButton = () => {
                         )}
 
                         {/* Dynamically render form fields based on schema */}
-                        {locationSchema.obligatory_fields
-                            .filter(([fieldName]) => fieldName !== 'uuid')
-                            .map(([fieldName, fieldType]) => renderFormField(fieldName, fieldType))}
+                        {Object.entries(locationSchema.fields || {}).map(([fieldName, fieldSpec]) =>
+                            renderFormField(fieldName, fieldSpec),
+                        )}
                     </DialogContent>
                     <DialogActions>
                         <Button type="submit" variant="contained" color="primary">
