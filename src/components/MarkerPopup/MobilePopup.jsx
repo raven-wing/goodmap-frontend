@@ -1,5 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { Dialog, DialogContent, DialogTitle, IconButton, Slide } from '@mui/material';
+import Dialog from '@mui/material/Dialog';
+import DialogContent from '@mui/material/DialogContent';
+import DialogTitle from '@mui/material/DialogTitle';
+import IconButton from '@mui/material/IconButton';
+import Slide from '@mui/material/Slide';
 import CloseIcon from '@mui/icons-material/Close';
 import { useLeafletContext } from '@react-leaflet/core';
 

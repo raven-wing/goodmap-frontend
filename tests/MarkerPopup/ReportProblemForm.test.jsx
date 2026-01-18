@@ -2,10 +2,8 @@ import React from 'react';
 import { render, fireEvent, waitFor } from '@testing-library/react';
 import { ReportProblemForm } from '../../src/components/MarkerPopup/ReportProblemForm';
 
-jest.mock('axios');
-const axios = require('axios');
-
-axios.post.mockResolvedValue({ data: { success: true } });
+// Mock fetch globally
+const mockFetch = jest.fn();
 
 // Mock CSRF token meta tag
 beforeEach(() => {
@@ -13,6 +11,12 @@ beforeEach(() => {
     metaTag.setAttribute('name', 'csrf-token');
     metaTag.setAttribute('content', 'test-csrf-token');
     document.head.appendChild(metaTag);
+
+    globalThis.fetch = mockFetch;
+    mockFetch.mockResolvedValue({
+        ok: true,
+        json: () => Promise.resolve({ success: true, message: 'Reported' }),
+    });
 });
 
 afterEach(() => {
@@ -20,31 +24,30 @@ afterEach(() => {
     if (metaTag) {
         metaTag.remove();
     }
+    jest.clearAllMocks();
 });
 
 describe('ReportProblemForm', () => {
-    it('submits the form with selected problem type', () => {
+    it('submits the form with selected problem type', async () => {
         const { getByText, getByLabelText } = render(<ReportProblemForm placeId="test-id" />);
         const select = getByLabelText(/What's the problem\?/i);
         fireEvent.change(select, { target: { value: 'broken' } });
 
         fireEvent.click(getByText(/Submit/i));
 
-        return waitFor(() => {
-            expect(axios.post).toHaveBeenCalledWith(
-                '/api/report-location',
-                { description: 'broken', id: 'test-id' },
-                {
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRFToken': 'test-csrf-token',
-                    },
+        await waitFor(() => {
+            expect(mockFetch).toHaveBeenCalledWith('/api/report-location', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': 'test-csrf-token',
                 },
-            );
+                body: JSON.stringify({ id: 'test-id', description: 'broken' }),
+            });
         });
     });
 
-    it('submits the form with custom problem description', () => {
+    it('submits the form with custom problem description', async () => {
         const { getByText, getByLabelText } = render(<ReportProblemForm placeId="test-id" />);
         const select = getByLabelText(/What's the problem\?/i);
         fireEvent.change(select, { target: { value: 'other' } });
@@ -52,17 +55,15 @@ describe('ReportProblemForm', () => {
         fireEvent.change(input, { target: { value: 'Custom problem' } });
         fireEvent.click(getByText(/Submit/i));
 
-        return waitFor(() => {
-            expect(axios.post).toHaveBeenCalledWith(
-                '/api/report-location',
-                { description: 'Custom problem', id: 'test-id' },
-                {
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRFToken': 'test-csrf-token',
-                    },
+        await waitFor(() => {
+            expect(mockFetch).toHaveBeenCalledWith('/api/report-location', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': 'test-csrf-token',
                 },
-            );
+                body: JSON.stringify({ id: 'test-id', description: 'Custom problem' }),
+            });
         });
     });
 

@@ -8,7 +8,7 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 import Arrow from '@mui/icons-material/ArrowLeftRounded';
-import { IconButton } from '@mui/material';
+import IconButton from '@mui/material/IconButton';
 import PropTypes from 'prop-types';
 import { httpService } from '../../../services/http/httpService';
 import { mapCustomTypeToReactComponent } from '../../MarkerPopup/mapCustomTypeToReactComponent';

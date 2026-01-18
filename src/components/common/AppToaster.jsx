@@ -1,6 +1,6 @@
 import React from 'react';
 import toast, { ToastBar, Toaster } from 'react-hot-toast';
-import { IconButton } from '@mui/material';
+import IconButton from '@mui/material/IconButton';
 import Close from '@mui/icons-material/Close';
 import { useMaxToasts } from '../../utils/hooks/useMaxToasts';
 

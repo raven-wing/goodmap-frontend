@@ -58,5 +58,14 @@ module.exports = (env, argv) => {
             },
             allowedHosts: runOnAllInterfaces ? 'all' : 'localhost',
         },
+        externals: {
+            react: 'React',
+            'react-dom': 'ReactDOM',
+            'react-dom/client': 'ReactDOM',
+            'react-dom/server': 'ReactDOMServer',
+        },
+        performance: {
+            hints: IS_PROD ? 'warning' : false,
+        },
     };
 };

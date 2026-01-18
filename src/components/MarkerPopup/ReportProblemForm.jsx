@@ -1,4 +1,3 @@
-import axios from 'axios';
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import PropTypes from 'prop-types';
@@ -132,20 +131,18 @@ export const ReportProblemForm = ({ placeId }) => {
         event.preventDefault();
         const csrfToken = await getCsrfToken();
 
-        const response = await axios.post(
-            '/api/report-location',
-            {
+        const response = await fetch('/api/report-location', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken,
+            },
+            body: JSON.stringify({
                 id: placeId,
                 description: problemType === 'other' ? problem : problemType,
-            },
-            {
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': csrfToken,
-                },
-            },
-        );
-        const responseData = response.data;
+            }),
+        });
+        const responseData = await response.json();
         setResponseMessage(responseData.message);
         setIsSubmitted(true);
     };

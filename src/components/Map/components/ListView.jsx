@@ -1,6 +1,7 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { Button, Tooltip } from '@mui/material';
+import Button from '@mui/material/Button';
+import Tooltip from '@mui/material/Tooltip';
 import ViewListIcon from '@mui/icons-material/ViewList';
 import styled from 'styled-components';
 import { useLocation } from '../context/LocationContext';

@@ -1,29 +1,25 @@
 import React, { useState } from 'react';
-import {
-    Button,
-    Box,
-    Dialog,
-    DialogTitle,
-    DialogContent,
-    DialogActions,
-    TextField,
-    Select,
-    MenuItem,
-    InputLabel,
-    FormControl,
-    Snackbar,
-    IconButton,
-    Checkbox,
-    ListItemText,
-    OutlinedInput,
-    Tooltip,
-} from '@mui/material';
-
+import Button from '@mui/material/Button';
+import Box from '@mui/material/Box';
+import Dialog from '@mui/material/Dialog';
+import DialogTitle from '@mui/material/DialogTitle';
+import DialogContent from '@mui/material/DialogContent';
+import DialogActions from '@mui/material/DialogActions';
+import TextField from '@mui/material/TextField';
+import Select from '@mui/material/Select';
+import MenuItem from '@mui/material/MenuItem';
+import InputLabel from '@mui/material/InputLabel';
+import FormControl from '@mui/material/FormControl';
+import Snackbar from '@mui/material/Snackbar';
+import IconButton from '@mui/material/IconButton';
+import Checkbox from '@mui/material/Checkbox';
+import ListItemText from '@mui/material/ListItemText';
+import OutlinedInput from '@mui/material/OutlinedInput';
+import Tooltip from '@mui/material/Tooltip';
 import AddAPhotoIcon from '@mui/icons-material/AddAPhoto';
 import AddIcon from '@mui/icons-material/Add';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import Control from 'react-leaflet-custom-control';
-import axios from 'axios';
 import { useTranslation } from 'react-i18next';
 import { buttonStyle, getLocationAwareStyles } from '../../../styles/buttonStyle';
 import { getCsrfToken } from '../../../utils/csrf';
@@ -163,12 +159,16 @@ export const SuggestNewPointButton = () => {
 
         try {
             const csrfToken = await getCsrfToken();
-            await axios.post('/api/suggest-new-point', formData, {
+            const response = await fetch('/api/suggest-new-point', {
+                method: 'POST',
                 headers: {
-                    'Content-Type': 'multipart/form-data',
                     'X-CSRFToken': csrfToken,
                 },
+                body: formData,
             });
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
             setSnackbarMessage('Location suggested successfully!');
             setSnackbarOpen(true);
 

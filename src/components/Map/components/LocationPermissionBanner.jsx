@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { useTranslation } from 'react-i18next';
 import CloseIcon from '@mui/icons-material/Close';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
-import { IconButton } from '@mui/material';
+import IconButton from '@mui/material/IconButton';
 import { useLocation } from '../context/LocationContext';
 
 const BANNER_DISMISSED_KEY = 'goodmap_location_banner_dismissed';

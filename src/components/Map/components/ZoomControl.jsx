@@ -1,7 +1,7 @@
 import React from 'react';
 import { useMap } from 'react-leaflet';
 import Control from 'react-leaflet-custom-control';
-import { Button } from '@mui/material';
+import Button from '@mui/material/Button';
 import { zoomInButtonStyle, zoomOutButtonStyle } from '../../../styles/buttonStyle';
 
 /**

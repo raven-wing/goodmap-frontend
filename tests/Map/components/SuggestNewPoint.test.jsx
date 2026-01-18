@@ -1,7 +1,6 @@
 import { render, fireEvent, waitFor, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import React from 'react';
-import axios from 'axios';
 import { SuggestNewPointButton } from '../../../src/components/Map/components/SuggestNewPointButton';
 import { LocationProvider } from '../../../src/components/Map/context/LocationContext';
 import {
@@ -22,7 +21,8 @@ const renderWithProvider = component => {
     return render(<LocationProvider>{component}</LocationProvider>);
 };
 
-jest.mock('axios');
+// Mock fetch globally
+const mockFetch = jest.fn();
 
 // Mock CSRF token meta tag and location schema
 beforeEach(() => {
@@ -32,6 +32,8 @@ beforeEach(() => {
     document.head.appendChild(metaTag);
 
     globalThis.LOCATION_SCHEMA = FULL_SCHEMA;
+    globalThis.fetch = mockFetch;
+    mockFetch.mockClear();
 });
 
 afterEach(() => {
@@ -139,7 +141,7 @@ describe('SuggestNewPointButton', () => {
     });
 
     it('displays validation error when user position is not available', async () => {
-        axios.post.mockResolvedValue({});
+        mockFetch.mockResolvedValue({ ok: true });
         mockGeolocationWithNullPosition();
 
         renderWithProvider(<SuggestNewPointButton />);
@@ -150,12 +152,12 @@ describe('SuggestNewPointButton', () => {
         await waitFor(() => {
             expect(screen.getByText(ERROR_MESSAGES.LOCATION_NOT_AVAILABLE)).toBeInTheDocument();
             expect(screen.getByRole('dialog')).toBeInTheDocument();
-            expect(axios.post).not.toHaveBeenCalled();
+            expect(mockFetch).not.toHaveBeenCalled();
         });
     });
 
     it('displays validation error when required fields are empty', async () => {
-        axios.post.mockResolvedValue({});
+        mockFetch.mockResolvedValue({ ok: true });
         mockGeolocationSuccess();
 
         renderWithProvider(<SuggestNewPointButton />);
@@ -166,14 +168,14 @@ describe('SuggestNewPointButton', () => {
         await waitFor(() => {
             expect(screen.getByText(ERROR_MESSAGES.REQUIRED_FIELDS)).toBeInTheDocument();
             expect(screen.getByRole('dialog')).toBeInTheDocument();
-            expect(axios.post).not.toHaveBeenCalled();
+            expect(mockFetch).not.toHaveBeenCalled();
         });
     });
 
     it('keeps dialog open on submission error', async () => {
         const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
 
-        axios.post.mockRejectedValue(new Error('Network error'));
+        mockFetch.mockResolvedValue({ ok: false, status: 500 });
         mockGeolocationSuccess();
         globalThis.LOCATION_SCHEMA = SIMPLE_SCHEMA;
 
@@ -186,7 +188,7 @@ describe('SuggestNewPointButton', () => {
         await waitFor(() => {
             expect(screen.getByText(ERROR_MESSAGES.SUBMISSION_ERROR)).toBeInTheDocument();
             expect(screen.getByRole('dialog')).toBeInTheDocument();
-            expect(axios.post).toHaveBeenCalledTimes(1);
+            expect(mockFetch).toHaveBeenCalledTimes(1);
             expect(consoleErrorSpy).toHaveBeenCalledWith(
                 'Error suggesting new point:',
                 expect.any(Error),
@@ -197,7 +199,7 @@ describe('SuggestNewPointButton', () => {
     });
 
     it('closes dialog and resets form on successful submission', async () => {
-        axios.post.mockResolvedValue({ data: { message: 'Success' } });
+        mockFetch.mockResolvedValue({ ok: true });
         mockGeolocationSuccess();
         globalThis.LOCATION_SCHEMA = SIMPLE_SCHEMA;
 
@@ -210,7 +212,7 @@ describe('SuggestNewPointButton', () => {
         await waitFor(() => {
             expect(screen.getByText(ERROR_MESSAGES.SUBMISSION_SUCCESS)).toBeInTheDocument();
             expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
-            expect(axios.post).toHaveBeenCalledTimes(1);
+            expect(mockFetch).toHaveBeenCalledTimes(1);
         });
     });
 });
